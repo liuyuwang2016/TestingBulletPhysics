@@ -27,6 +27,9 @@ public:
 
 	// camera functions
 	void UpdateCamera();
+
+	// drawing functions
+	void DrawBox(const btVector3 &halfSize, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
 	
 	protected:
 		// camera control
