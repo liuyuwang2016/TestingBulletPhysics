@@ -2,9 +2,18 @@
 #include "stdafx.h"
 #include "BulletOpenGLApplication.h"
 
+// Some constants for 3D math and the camera speed
+#define RADIANS_PER_DEGREE 0.01745329f
+#define CAMERA_STEP_SIZE 5.0f
+
 BulletOpenGLApplication::BulletOpenGLApplication(): 
 	m_cameraPosition(10.0f, 5.0f, 0.0f),
 	m_cameraTarget(0.0f, 0.0f, 0.0f),
+
+	m_cameraDistance(15.0f),
+	m_cameraPitch(20.0f),
+	m_cameraYaw(0.0f),
+
 	m_upVector(0.0f, 1.0f, 0.0f),
 	m_nearPlane(1.0f),
 	m_farPlane(1000.0f)
@@ -47,9 +56,32 @@ void BulletOpenGLApplication::Initialize() {
 	// set the backbuffer clearing color to a lightish blue
 	glClearColor(0.6, 0.65, 0.85, 0);
 }
-void BulletOpenGLApplication::Keyboard(unsigned char key, int x, int y) {}
+void BulletOpenGLApplication::Keyboard(unsigned char key, int x, int y) {
+	// This function is called by FreeGLUT whenever
+	// generic keys are pressed down.
+	switch (key) {
+		// 'z' zooms in
+	case 'z': ZoomCamera(+CAMERA_STEP_SIZE); break;
+		// 'x' zoom out
+	case 'x': ZoomCamera(-CAMERA_STEP_SIZE); break;
+	}
+}
 void BulletOpenGLApplication::KeyboardUp(unsigned char key, int x, int y) {}
-void BulletOpenGLApplication::Special(int key, int x, int y) {}
+void BulletOpenGLApplication::Special(int key, int x, int y) {
+	// This function is called by FreeGLUT whenever special keys
+	// are pressed down, like the arrow keys, or Insert, Delete etc.
+	switch (key) {
+		// the arrow keys rotate the camera up/down/left/right
+	case GLUT_KEY_LEFT:
+		RotateCamera(m_cameraYaw, +CAMERA_STEP_SIZE); break;
+	case GLUT_KEY_RIGHT:
+		RotateCamera(m_cameraYaw, -CAMERA_STEP_SIZE); break;
+	case GLUT_KEY_UP:
+		RotateCamera(m_cameraPitch, +CAMERA_STEP_SIZE); break;
+	case GLUT_KEY_DOWN:
+		RotateCamera(m_cameraPitch, -CAMERA_STEP_SIZE); break;
+	}
+}
 void BulletOpenGLApplication::SpecialUp(int key, int x, int y) {}
 void BulletOpenGLApplication::Reshape(int w, int h) {
 	// this function is called once during application intialization
@@ -107,6 +139,49 @@ void BulletOpenGLApplication::UpdateCamera() {
 	glMatrixMode(GL_MODELVIEW);
 	// set it to '1'
 	glLoadIdentity();
+
+	// our values represent the angles in degrees, but 3D 
+	// math typically demands angular values are in radians.
+	float pitch = m_cameraPitch * RADIANS_PER_DEGREE;
+	float yaw = m_cameraYaw * RADIANS_PER_DEGREE;
+
+	// create a quaternion defining the angular rotation 
+	// around the up vector
+	btQuaternion rotation(m_upVector, yaw);
+
+	// set the camera's position to 0,0,0, then move the 'z' 
+	// position to the current value of m_cameraDistance.
+	btVector3 cameraPosition(0, 0, 0);
+	cameraPosition[2] = -m_cameraDistance;
+
+	// create a Bullet Vector3 to represent the camera 
+	// position and scale it up if its value is too small.
+	btVector3 forward(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+	if (forward.length2() < SIMD_EPSILON) {
+			forward.setValue(1.f, 0.f, 0.f);
+	}
+
+	// figure out the 'right' vector by using the cross 
+	// product on the 'forward' and 'up' vectors
+	btVector3 right = m_upVector.cross(forward);
+
+	// create a quaternion that represents the camera's roll
+	btQuaternion roll(right, -pitch);
+
+	// turn the rotation (around the Y-axis) and roll (around 
+	// the forward axis) into transformation matrices and 
+	// apply them to the camera position. This gives us the 
+	// final position
+	cameraPosition = btMatrix3x3(rotation) * btMatrix3x3(roll) * cameraPosition;
+
+	// save our new position in the member variable, and 
+	// shift it relative to the target position (so that we 
+	// orbit it)
+	m_cameraPosition[0] = cameraPosition.getX();
+	m_cameraPosition[1] = cameraPosition.getY();
+	m_cameraPosition[2] = cameraPosition.getZ();
+	m_cameraPosition += m_cameraTarget;
+
 	// create a view matrix based on the camera's position and where it's
 	// looking
 	gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2], m_cameraTarget[0], m_cameraTarget[1], m_cameraTarget[2], m_upVector.getX(), m_upVector.getY(), m_upVector.getZ());
@@ -185,4 +260,24 @@ void BulletOpenGLApplication::DrawBox(const btVector3 &halfSize, const btVector3
 	// stop processing vertices
 	glEnd();
 	
+}
+
+void BulletOpenGLApplication::RotateCamera(float &angle, float value) {
+	// change the value (it is passed by reference, so we
+	// can edit it here)
+	angle -= value;
+	// keep the value within bounds
+	if (angle < 0) angle += 360;
+	if (angle >= 360) angle -= 360;
+	// update the camera since we changed the angular value
+	UpdateCamera();
+}
+
+void BulletOpenGLApplication::ZoomCamera(float distance) {
+	// change the distance value
+	m_cameraDistance -= distance;
+	// prevent it from zooming in too far
+	if (m_cameraDistance < 0.1f) m_cameraDistance = 0.1f;
+	// update the camera since we changed the zoom distance
+	UpdateCamera();
 }

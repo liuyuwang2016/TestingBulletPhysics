@@ -27,6 +27,8 @@ public:
 
 	// camera functions
 	void UpdateCamera();
+	void RotateCamera(float &angle, float value);
+	void ZoomCamera(float distance);
 
 	// drawing functions
 	void DrawBox(const btVector3 &halfSize, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
@@ -40,5 +42,9 @@ public:
 		btVector3	m_upVector;			// keeps the camera rotated correctly
 		int			m_screenWidth;
 		int			m_screenHeight;
+
+		float		m_cameraDistance;	// distance from the camera to its target
+		float		m_cameraPitch;		// pitch of the camera 
+		float		m_cameraYaw;		// yaw of the camera
 };
 #endif
