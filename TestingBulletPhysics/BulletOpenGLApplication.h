@@ -24,6 +24,10 @@ public:
 	virtual void PassiveMotion(int x, int y);
 	virtual void Motion(int x, int y);
 	virtual void Display();
+	
+	// physics functions. Can be overriden by derived classes (like BasicDemo)
+	virtual void InitializePhysics() {};
+	virtual void ShutdownPhysics() {};
 
 	// camera functions
 	void UpdateCamera();
@@ -40,11 +44,19 @@ public:
 		float		m_nearPlane;		// minimum distance the camera will render
 		float		m_farPlane;			// farthest distance the camera will render
 		btVector3	m_upVector;			// keeps the camera rotated correctly
-		int			m_screenWidth;
-		int			m_screenHeight;
 
 		float		m_cameraDistance;	// distance from the camera to its target
 		float		m_cameraPitch;		// pitch of the camera 
 		float		m_cameraYaw;		// yaw of the camera
+
+		int			m_screenWidth;
+		int			m_screenHeight;
+
+		// core Bullet components
+		btBroadphaseInterface*		m_pBroadphase;
+		btCollisionConfiguration*	m_pCollisionConfiguration;
+		btCollisionDispatcher*		m_pDispatcher;
+		btConstraintSolver*			m_pSolver;
+		btDynamicsWorld*			m_pWorld;
 };
 #endif

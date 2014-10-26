@@ -16,11 +16,21 @@ BulletOpenGLApplication::BulletOpenGLApplication():
 
 	m_upVector(0.0f, 1.0f, 0.0f),
 	m_nearPlane(1.0f),
-	m_farPlane(1000.0f)
+	m_farPlane(1000.0f),
+
+	// bullet physics init
+	m_pBroadphase(0),
+	m_pCollisionConfiguration(0),
+	m_pDispatcher(0),
+	m_pSolver(0),
+	m_pWorld(0)
 {
 
 }
-BulletOpenGLApplication::~BulletOpenGLApplication() {}
+BulletOpenGLApplication::~BulletOpenGLApplication() {
+	// shutdown the physics system
+	ShutdownPhysics();
+}
 void BulletOpenGLApplication::Initialize() {
 	// this function is called inside glutmain() after
 	// creating the window, but before handing control
@@ -55,6 +65,9 @@ void BulletOpenGLApplication::Initialize() {
 
 	// set the backbuffer clearing color to a lightish blue
 	glClearColor(0.6, 0.65, 0.85, 0);
+
+	// initialize the physics system
+	InitializePhysics();
 }
 void BulletOpenGLApplication::Keyboard(unsigned char key, int x, int y) {
 	// This function is called by FreeGLUT whenever
