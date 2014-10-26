@@ -6,6 +6,8 @@
 #include <GL/GL.h>
 #include <gl/freeglut.h>
 
+#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
+
 class BulletOpenGLApplication {
 public:
 	BulletOpenGLApplication();
@@ -22,5 +24,18 @@ public:
 	virtual void PassiveMotion(int x, int y);
 	virtual void Motion(int x, int y);
 	virtual void Display();
+
+	// camera functions
+	void UpdateCamera();
+	
+	protected:
+		// camera control
+		btVector3	m_cameraPosition;	// the camera's current position
+		btVector3	m_cameraTarget;		// the camera's lookAt target
+		float		m_nearPlane;		// minimum distance the camera will render
+		float		m_farPlane;			// farthest distance the camera will render
+		btVector3	m_upVector;			// keeps the camera rotated correctly
+		int			m_screenWidth;
+		int			m_screenHeight;
 };
 #endif
