@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>BulletCollision_vs2013_debug.lib;BulletDynamics_vs2013_debug.lib;LinearMath_vs2013_debug.lib;freeglut.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>BulletDynamics_vs2013_debug.lib;BulletCollision_vs2013_debug.lib;LinearMath_vs2013_debug.lib;freeglut.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\OpenGL\freeglut-2.8.1\lib\x86\Debug;C:\OpenGL\Learning Game Physics with Bullet Physics and OpenGL\Bullet\lib2013</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -87,6 +87,7 @@
     <ClInclude Include="BasicDemo.h" />
     <ClInclude Include="BulletOpenGLApplication.h" />
     <ClInclude Include="FreeGLUTCallbacks.h" />
+    <ClInclude Include="OpenGLMotionState.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

@@ -8,6 +8,9 @@
 
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 
+// include our custom Motion State object
+#include "OpenGLMotionState.h"
+
 class BulletOpenGLApplication {
 public:
 	BulletOpenGLApplication();
@@ -24,7 +27,13 @@ public:
 	virtual void PassiveMotion(int x, int y);
 	virtual void Motion(int x, int y);
 	virtual void Display();
+
+	// rendering. Can be overrideen by derived classes
+	virtual void RenderScene();
 	
+	// scene updating. Can be overridden by derived classes
+	virtual void UpdateScene(float dt);
+
 	// physics functions. Can be overriden by derived classes (like BasicDemo)
 	virtual void InitializePhysics() {};
 	virtual void ShutdownPhysics() {};
@@ -35,8 +44,8 @@ public:
 	void ZoomCamera(float distance);
 
 	// drawing functions
-	void DrawBox(const btVector3 &halfSize, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
-	
+	void DrawBox(btScalar* transform, const btVector3 &halfSize, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
+
 	protected:
 		// camera control
 		btVector3	m_cameraPosition;	// the camera's current position
@@ -58,5 +67,11 @@ public:
 		btCollisionDispatcher*		m_pDispatcher;
 		btConstraintSolver*			m_pSolver;
 		btDynamicsWorld*			m_pWorld;
+
+		// our custom motion state
+		OpenGLMotionState* m_pMotionState;
+		
+		// a simple clock for counting time
+		btClock m_clock;
 };
 #endif

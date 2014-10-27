@@ -23,7 +23,9 @@ BulletOpenGLApplication::BulletOpenGLApplication():
 	m_pCollisionConfiguration(0),
 	m_pDispatcher(0),
 	m_pSolver(0),
-	m_pWorld(0)
+	m_pWorld(0),
+	
+	m_pMotionState(0)
 {
 
 }
@@ -116,12 +118,18 @@ void BulletOpenGLApplication::Idle() {
 	// clear the backbuffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	// get the time since the last iteration
+	float dt = m_clock.getTimeMilliseconds();
+	// reset the clock to 0
+	m_clock.reset();
+	// update the scene (convert ms to s)
+	UpdateScene(dt / 1000.0f);
+
 	// update the camera
 	UpdateCamera();
 
-	// draw a simple box of size 1
-	// also draw it red
-	DrawBox(btVector3(1, 1, 1));
+	// render the scene
+	RenderScene();
 	
 	// swap the front and back buffers
 	glutSwapBuffers();
@@ -202,8 +210,12 @@ void BulletOpenGLApplication::UpdateCamera() {
 }
 
 
-void BulletOpenGLApplication::DrawBox(const btVector3 &halfSize, const btVector3 &color) {
-	float halfWidth = halfSize.x();
+/*ADD*/void BulletOpenGLApplication::DrawBox(btScalar* transform, const btVector3 &halfSize, const btVector3 &color) {
+
+	// push the transform onto the stack
+	glPushMatrix();
+	glMultMatrixf(transform);	float halfWidth = halfSize.x();
+
 	float halfHeight = halfSize.y();
 	float halfDepth = halfSize.z();
 	
@@ -273,6 +285,9 @@ void BulletOpenGLApplication::DrawBox(const btVector3 &halfSize, const btVector3
 	// stop processing vertices
 	glEnd();
 	
+	// pop the transform from the stack in preparation
+	// for the next object
+	glPopMatrix();
 }
 
 void BulletOpenGLApplication::RotateCamera(float &angle, float value) {
@@ -293,4 +308,26 @@ void BulletOpenGLApplication::ZoomCamera(float distance) {
 	if (m_cameraDistance < 0.1f) m_cameraDistance = 0.1f;
 	// update the camera since we changed the zoom distance
 	UpdateCamera();
+}
+
+void BulletOpenGLApplication::RenderScene() {
+	// create an array of 16 floats (representing a 4x4 matrix)
+	btScalar transform[16];
+
+	if (m_pMotionState) {
+		// get the world transform from our motion state
+		m_pMotionState->GetWorldTransform(transform);
+		// feed the data into DrawBox
+		DrawBox(transform, btVector3(1, 1, 1), btVector3(1.0f, 0.2f, 0.2f));
+	}
+}
+
+void BulletOpenGLApplication::UpdateScene(float dt) {
+	// check if the world object exists
+	if (m_pWorld) {
+			// step the simulation through time. This is called
+			// every update and the amount of elasped time was 
+			// determined back in ::Idle() by our clock object.
+			m_pWorld->stepSimulation(dt);
+	}
 }
