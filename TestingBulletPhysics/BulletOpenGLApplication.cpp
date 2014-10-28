@@ -23,9 +23,7 @@ BulletOpenGLApplication::BulletOpenGLApplication():
 	m_pCollisionConfiguration(0),
 	m_pDispatcher(0),
 	m_pSolver(0),
-	m_pWorld(0),
-	
-	m_pMotionState(0)
+	m_pWorld(0)
 {
 
 }
@@ -139,7 +137,6 @@ void BulletOpenGLApplication::PassiveMotion(int x, int y) {}
 void BulletOpenGLApplication::Motion(int x, int y) {}
 void BulletOpenGLApplication::Display() {}
 
-
 void BulletOpenGLApplication::UpdateCamera() {
 	// exit in erroneous situations
 	if (m_screenWidth == 0 && m_screenHeight == 0)
@@ -210,17 +207,11 @@ void BulletOpenGLApplication::UpdateCamera() {
 }
 
 
-/*ADD*/void BulletOpenGLApplication::DrawBox(btScalar* transform, const btVector3 &halfSize, const btVector3 &color) {
-
-	// push the transform onto the stack
-	glPushMatrix();
-	glMultMatrixf(transform);	float halfWidth = halfSize.x();
-
+void BulletOpenGLApplication::DrawBox(const btVector3 &halfSize) {
+	
+	float halfWidth = halfSize.x();
 	float halfHeight = halfSize.y();
 	float halfDepth = halfSize.z();
-	
-	// set the object's color
-	glColor3f(color.x(), color.y(), color.z());
 	
 	// create the vertex positions
 	btVector3 vertices[8] = {
@@ -284,10 +275,6 @@ void BulletOpenGLApplication::UpdateCamera() {
 	
 	// stop processing vertices
 	glEnd();
-	
-	// pop the transform from the stack in preparation
-	// for the next object
-	glPopMatrix();
 }
 
 void BulletOpenGLApplication::RotateCamera(float &angle, float value) {
@@ -314,11 +301,16 @@ void BulletOpenGLApplication::RenderScene() {
 	// create an array of 16 floats (representing a 4x4 matrix)
 	btScalar transform[16];
 
-	if (m_pMotionState) {
-		// get the world transform from our motion state
-		m_pMotionState->GetWorldTransform(transform);
-		// feed the data into DrawBox
-		DrawBox(transform, btVector3(1, 1, 1), btVector3(1.0f, 0.2f, 0.2f));
+	// iterate through all of the objects in our world
+	for (GameObjects::iterator i = m_objects.begin(); i != m_objects.end(); ++i) {
+		// get the object from the iterator
+		GameObject* pObj = *i;
+
+		// read the transform
+		pObj->GetTransform(transform);
+
+		// get data from the object and draw it
+		DrawShape(transform, pObj->GetShape(), pObj->GetColor());
 	}
 }
 
@@ -330,4 +322,51 @@ void BulletOpenGLApplication::UpdateScene(float dt) {
 			// determined back in ::Idle() by our clock object.
 			m_pWorld->stepSimulation(dt);
 	}
+}
+
+
+void BulletOpenGLApplication::DrawShape(btScalar* transform, const btCollisionShape* pShape, const btVector3 &color) {
+	// set the color
+	glColor3f(color.x(), color.y(), color.z());
+
+	// push the matrix stack
+	glPushMatrix();
+	glMultMatrixf(transform);
+
+	// make a different draw call based on the object type
+	switch (pShape->getShapeType()) {
+		// an internal enum used by Bullet for boxes
+		case BOX_SHAPE_PROXYTYPE:
+		{
+			// assume the shape is a box, and typecast it
+			const btBoxShape* box = static_cast<const btBoxShape*>(pShape);
+			// get the 'halfSize' of the box
+			btVector3 halfSize = box->getHalfExtentsWithMargin();
+			// draw the box
+			DrawBox(halfSize);
+			break;
+		}
+		default:
+			// unsupported type
+			break;
+	 }
+
+	// pop the stack
+	glPopMatrix();
+}
+
+GameObject* BulletOpenGLApplication::CreateGameObject(btCollisionShape* pShape, const float &mass, const btVector3 &color, const btVector3 &initialPosition, const btQuaternion &initialRotation) {
+	// create a new game object
+	GameObject* pObject = new GameObject(pShape, mass, color, initialPosition, initialRotation);
+
+	// push it to the back of the list
+	m_objects.push_back(pObject);
+
+	// check if the world object is valid
+	if (m_pWorld) {
+		// add the object's rigid body to the world
+		m_pWorld->addRigidBody(pObject->GetRigidBody());
+	}
+	return pObject;
+
 }

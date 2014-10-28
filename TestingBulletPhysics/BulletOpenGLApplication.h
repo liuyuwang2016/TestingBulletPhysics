@@ -11,6 +11,11 @@
 // include our custom Motion State object
 #include "OpenGLMotionState.h"
 
+#include "GameObject.h"
+#include <vector>
+// a convenient typedef to reference an STL vector of GameObjects
+typedef std::vector<GameObject*> GameObjects;
+
 class BulletOpenGLApplication {
 public:
 	BulletOpenGLApplication();
@@ -43,8 +48,17 @@ public:
 	void RotateCamera(float &angle, float value);
 	void ZoomCamera(float distance);
 
+
 	// drawing functions
-	void DrawBox(btScalar* transform, const btVector3 &halfSize, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
+	void DrawBox(const btVector3 &halfSize);
+	void DrawShape(btScalar* transform, const btCollisionShape* pShape, const btVector3 &color);
+	
+	// object functions
+	GameObject* CreateGameObject(btCollisionShape* pShape,
+			const float &mass,
+			const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f),
+			const btVector3 &initialPosition = btVector3(0.0f, 0.0f, 0.0f),
+			const btQuaternion &initialRotation = btQuaternion(0, 0, 1, 1));
 
 	protected:
 		// camera control
@@ -67,11 +81,11 @@ public:
 		btCollisionDispatcher*		m_pDispatcher;
 		btConstraintSolver*			m_pSolver;
 		btDynamicsWorld*			m_pWorld;
-
-		// our custom motion state
-		OpenGLMotionState* m_pMotionState;
 		
 		// a simple clock for counting time
 		btClock m_clock;
+
+		// an array of our game objects
+		GameObjects m_objects;
 };
 #endif

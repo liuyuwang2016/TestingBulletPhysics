@@ -7,7 +7,9 @@
 //global pointer to our application object
 static BulletOpenGLApplication* g_pApp;
 
-//various static functions that will be handed to Freeglut
+/** Various static functions that will be handed to FreeGLUT to be called
+during various events (our callbacks). Each calls an equivalent function
+in our (global) application object. **/
 static void KeyboardCallback(unsigned char key, int x, int y) {
 	g_pApp->Keyboard(key, x, y);
 }
