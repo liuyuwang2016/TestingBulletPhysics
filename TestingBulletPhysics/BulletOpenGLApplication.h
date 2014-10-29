@@ -11,6 +11,9 @@
 // include our custom Motion State object
 #include "OpenGLMotionState.h"
 
+// Our custom debug renderer
+#include "DebugDrawer.h"
+
 #include "GameObject.h"
 #include <vector>
 // a convenient typedef to reference an STL vector of GameObjects
@@ -87,5 +90,8 @@ public:
 
 		// an array of our game objects
 		GameObjects m_objects;
+
+		// debug renderer
+		DebugDrawer* m_pDebugDrawer;
 };
 #endif

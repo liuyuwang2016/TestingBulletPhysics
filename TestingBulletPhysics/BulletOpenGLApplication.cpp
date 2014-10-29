@@ -68,6 +68,13 @@ void BulletOpenGLApplication::Initialize() {
 
 	// initialize the physics system
 	InitializePhysics();
+
+	// create the debug drawer
+	m_pDebugDrawer = new DebugDrawer();
+	// set the initial debug level to 0
+	m_pDebugDrawer->setDebugMode(0);
+	// add the debug drawer to the world
+	m_pWorld->setDebugDrawer(m_pDebugDrawer);
 }
 void BulletOpenGLApplication::Keyboard(unsigned char key, int x, int y) {
 	// This function is called by FreeGLUT whenever
@@ -77,6 +84,14 @@ void BulletOpenGLApplication::Keyboard(unsigned char key, int x, int y) {
 	case 'z': ZoomCamera(+CAMERA_STEP_SIZE); break;
 		// 'x' zoom out
 	case 'x': ZoomCamera(-CAMERA_STEP_SIZE); break;
+	case 'w':
+		// toggle wireframe debug drawing
+		m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawWireframe);
+		break;
+	case 'b':
+		// toggle AABB debug drawing
+		m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawAabb);
+		break;
 	}
 }
 void BulletOpenGLApplication::KeyboardUp(unsigned char key, int x, int y) {}
@@ -312,6 +327,12 @@ void BulletOpenGLApplication::RenderScene() {
 		// get data from the object and draw it
 		DrawShape(transform, pObj->GetShape(), pObj->GetColor());
 	}
+
+	// after rendering all game objects, perform debug rendering
+	// Bullet will figure out what needs to be drawn then call to
+	// our DebugDrawer class to do the rendering for us
+	m_pWorld->debugDrawWorld();
+
 }
 
 void BulletOpenGLApplication::UpdateScene(float dt) {
