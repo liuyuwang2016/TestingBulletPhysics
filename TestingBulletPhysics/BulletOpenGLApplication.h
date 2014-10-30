@@ -76,6 +76,9 @@ public:
 	btVector3 GetPickingRay(int x, int y);
 	bool Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output);
 
+	// constraint functions
+	void CreatePickingConstraint(int x, int y);
+	void RemovePickingConstraint();
 
 	protected:
 		// camera control
@@ -107,5 +110,10 @@ public:
 
 		// debug renderer
 		DebugDrawer* m_pDebugDrawer;
+
+		// constraint variables
+		btRigidBody* m_pPickedBody;				// the body we picked up
+		btTypedConstraint*  m_pPickConstraint;	// the constraint the body is attached to
+		btScalar m_oldPickingDist;
 };
 #endif

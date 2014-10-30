@@ -23,7 +23,9 @@ BulletOpenGLApplication::BulletOpenGLApplication():
 	m_pCollisionConfiguration(0),
 	m_pDispatcher(0),
 	m_pSolver(0),
-	m_pWorld(0)
+	m_pWorld(0),
+	m_pPickedBody(0),
+	m_pPickConstraint(0)
 {
 
 }
@@ -160,6 +162,18 @@ void BulletOpenGLApplication::Idle() {
 }
 void BulletOpenGLApplication::Mouse(int button, int state, int x, int y) {
 	switch (button) {
+	case 0:  // left mouse button
+		{
+			if (state == 0) { // button down
+				// create the picking constraint when we click the LMB
+				CreatePickingConstraint(x, y);
+			}
+			else { // button up
+				// remove the picking constraint when we release the LMB
+				RemovePickingConstraint();
+			}
+			break;
+		}
 	case 2: // right mouse button
 		{
 			if (state == 0) { // pressed down
@@ -173,7 +187,25 @@ void BulletOpenGLApplication::Mouse(int button, int state, int x, int y) {
 	}
 }
 void BulletOpenGLApplication::PassiveMotion(int x, int y) {}
-void BulletOpenGLApplication::Motion(int x, int y) {}
+void BulletOpenGLApplication::Motion(int x, int y) {
+	// did we pick a body with the LMB?
+	if (m_pPickedBody) {
+		btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pPickConstraint);
+		if (!pickCon)
+			return;
+	
+		// use another picking ray to get the target direction
+		btVector3 dir = GetPickingRay(x, y) - m_cameraPosition;
+		dir.normalize();
+	
+		// use the same distance as when we originally picked the object
+		dir *= m_oldPickingDist;
+		btVector3 newPivot = m_cameraPosition + dir;
+	
+		// set the position of the constraint
+		pickCon->getFrameOffsetA().setOrigin(newPivot);
+	}
+}
 void BulletOpenGLApplication::Display() {}
 
 void BulletOpenGLApplication::UpdateCamera() {
@@ -523,4 +555,84 @@ void BulletOpenGLApplication::DestroyGameObject(btRigidBody* pBody) {
 			return;
 		}	
 	}
+}
+
+
+void BulletOpenGLApplication::CreatePickingConstraint(int x, int y) {
+	if (!m_pWorld)
+		return;
+	
+	// perform a raycast and return if it fails
+	RayResult output;
+	if (!Raycast(m_cameraPosition, GetPickingRay(x, y), output))
+		return;
+	
+	// store the body for future reference
+	m_pPickedBody = output.pBody;
+	
+	// prevent the picked object from falling asleep
+	m_pPickedBody->setActivationState(DISABLE_DEACTIVATION);
+	
+	// get the hit position relative to the body we hit 
+	btVector3 localPivot = m_pPickedBody->getCenterOfMassTransform().inverse() * output.hitPoint;
+	
+	// create a transform for the pivot point
+	btTransform pivot;
+	pivot.setIdentity();
+	pivot.setOrigin(localPivot);
+	
+	// create our constraint object
+	btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*m_pPickedBody, pivot, true);
+	bool bLimitAngularMotion = true;
+	if (bLimitAngularMotion) {
+		dof6->setAngularLowerLimit(btVector3(0, 0, 0));
+		dof6->setAngularUpperLimit(btVector3(0, 0, 0));	
+	}
+	
+	// add the constraint to the world
+	m_pWorld->addConstraint(dof6, true);
+	
+	// store a pointer to our constraint
+	m_pPickConstraint = dof6;
+	
+	// define the 'strength' of our constraint (each axis)
+	float cfm = 0.5f;
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 0);
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 1);
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 2);
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 3);
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 4);
+	dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 5);
+	
+	// define the 'error reduction' of our constraint (each axis)
+	float erp = 0.5f;
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 0);
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 1);
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 2);
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 3);
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 4);
+	dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 5);
+	
+	// save this data for future reference
+	m_oldPickingDist = (output.hitPoint - m_cameraPosition).length();
+}
+
+void BulletOpenGLApplication::RemovePickingConstraint() {
+	// exit in erroneous situations
+	if (!m_pPickConstraint || !m_pWorld)
+		return;
+	
+	// remove the constraint from the world
+	m_pWorld->removeConstraint(m_pPickConstraint);
+	
+	// delete the constraint object
+	delete m_pPickConstraint;
+	
+	// reactivate the body
+	m_pPickedBody->forceActivationState(ACTIVE_TAG);
+	m_pPickedBody->setDeactivationTime(0.f);
+	
+	// clear the pointers
+	m_pPickConstraint = 0;
+	m_pPickedBody = 0;
 }
