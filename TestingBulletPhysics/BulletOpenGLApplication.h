@@ -83,7 +83,7 @@ public:
 
 	// picking functions
 	btVector3 GetPickingRay(int x, int y);
-	bool Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output);
+	bool Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output, bool includeStatic = false);
 
 	// constraint functions
 	void CreatePickingConstraint(int x, int y);

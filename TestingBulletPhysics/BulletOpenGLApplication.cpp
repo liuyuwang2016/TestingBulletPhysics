@@ -503,7 +503,7 @@ void BulletOpenGLApplication::ShootBox(const btVector3 &direction) {
 	pObject->GetRigidBody()->setLinearVelocity(velocity);
 }
 
-bool BulletOpenGLApplication::Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output) {
+bool BulletOpenGLApplication::Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output, bool includeStatic) {
 	if (!m_pWorld)
 			return false;
 	
@@ -527,7 +527,8 @@ bool BulletOpenGLApplication::Raycast(const btVector3 &startPosition, const btVe
 		
 			// prevent us from picking objects 
 			// like the ground plane
-			if (pBody->isStaticObject() || pBody->isKinematicObject())
+			if (!includeStatic) // skip this check if we want it to hit static objects
+				if (pBody->isStaticObject() || pBody->isKinematicObject())
 					return false;
 		
 			// set the result data
