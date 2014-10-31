@@ -16,8 +16,16 @@
 
 #include "GameObject.h"
 #include <vector>
+#include <set>
+#include <iterator>
+#include <algorithm>
+
 // a convenient typedef to reference an STL vector of GameObjects
 typedef std::vector<GameObject*> GameObjects;
+
+// convenient typedefs for collision events
+typedef std::pair<const btRigidBody*, const btRigidBody*> CollisionPair;
+typedef std::set<CollisionPair> CollisionPairs;
 
 // struct to store our raycasting results
 struct RayResult {
@@ -71,6 +79,7 @@ public:
 
 	void ShootBox(const btVector3 &direction);
 	void DestroyGameObject(btRigidBody* pBody);
+	GameObject* FindGameObject(btRigidBody* pBody);
 
 	// picking functions
 	btVector3 GetPickingRay(int x, int y);
@@ -79,6 +88,12 @@ public:
 	// constraint functions
 	void CreatePickingConstraint(int x, int y);
 	void RemovePickingConstraint();
+
+	// collision event functions
+	void CheckForCollisionEvents();
+	virtual void CollisionEvent(btRigidBody* pBody0, btRigidBody * pBody1);
+	virtual void SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
+
 
 	protected:
 		// camera control
@@ -115,5 +130,8 @@ public:
 		btRigidBody* m_pPickedBody;				// the body we picked up
 		btTypedConstraint*  m_pPickConstraint;	// the constraint the body is attached to
 		btScalar m_oldPickingDist;
+
+		// collision event variables
+		CollisionPairs m_pairsLastUpdate;
 };
 #endif
