@@ -68,6 +68,8 @@ public:
 
 	// drawing functions
 	void DrawBox(const btVector3 &halfSize);
+	void DrawSphere(const btScalar &radius);
+	void DrawCylinder(const btScalar &radius, const btScalar &halfHeight);
 	void DrawShape(btScalar* transform, const btCollisionShape* pShape, const btVector3 &color);
 	
 	// object functions
