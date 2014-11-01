@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>BulletDynamics_vs2013_debug.lib;BulletCollision_vs2013_debug.lib;LinearMath_vs2013_debug.lib;freeglut.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>BulletSoftBody_vs2013_debug.lib;BulletDynamics_vs2013_debug.lib;BulletCollision_vs2013_debug.lib;LinearMath_vs2013_debug.lib;freeglut.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\OpenGL\freeglut-2.8.1\lib\x86\Debug;C:\OpenGL\Learning Game Physics with Bullet Physics and OpenGL\Bullet\lib2013</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -91,6 +91,7 @@
     <ClInclude Include="FreeGLUTCallbacks.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="OpenGLMotionState.h" />
+    <ClInclude Include="SoftBodyDemo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -100,11 +101,15 @@
     <ClCompile Include="CollisionFilteringDemo.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="SoftBodyDemo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestingBulletPhysics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

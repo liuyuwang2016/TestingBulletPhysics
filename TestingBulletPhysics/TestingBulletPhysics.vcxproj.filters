@@ -45,6 +45,9 @@
     <ClInclude Include="CollisionFilteringDemo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoftBodyDemo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -68,5 +71,11 @@
     <ClCompile Include="CollisionFilteringDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SoftBodyDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

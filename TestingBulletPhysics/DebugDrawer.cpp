@@ -32,3 +32,16 @@ void DebugDrawer::ToggleDebugFlag(int flag) {
 		// flag is disabled, so enable it
 		m_debugMode |= flag;
 }
+
+void DebugDrawer::drawTriangle(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& color, btScalar alpha) {
+	// calculate the normal for the three points (a, b and c)
+	const btVector3  n = btCross(b - a, c - a).normalized();
+	glBegin(GL_TRIANGLES);
+	// render a triangle of the given color
+	glColor4f(color.getX(), color.getY(), color.getZ(), alpha);
+	glNormal3d(n.getX(), n.getY(), n.getZ());
+	glVertex3d(a.getX(), a.getY(), a.getZ());
+	glVertex3d(b.getX(), b.getY(), b.getZ());
+	glVertex3d(c.getX(), c.getY(), c.getZ());
+	glEnd();
+}
