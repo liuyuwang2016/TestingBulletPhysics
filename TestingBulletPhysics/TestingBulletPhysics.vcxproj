@@ -86,6 +86,7 @@
   <ItemGroup>
     <ClInclude Include="BasicDemo.h" />
     <ClInclude Include="BulletOpenGLApplication.h" />
+    <ClInclude Include="CollisionFilteringDemo.h" />
     <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="FreeGLUTCallbacks.h" />
     <ClInclude Include="GameObject.h" />
@@ -96,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="BasicDemo.cpp" />
     <ClCompile Include="BulletOpenGLApplication.cpp" />
+    <ClCompile Include="CollisionFilteringDemo.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="stdafx.cpp">

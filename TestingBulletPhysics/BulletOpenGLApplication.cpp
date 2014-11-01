@@ -479,7 +479,7 @@ void BulletOpenGLApplication::DrawShape(btScalar* transform, const btCollisionSh
 	glPopMatrix();
 }
 
-GameObject* BulletOpenGLApplication::CreateGameObject(btCollisionShape* pShape, const float &mass, const btVector3 &color, const btVector3 &initialPosition, const btQuaternion &initialRotation) {
+GameObject* BulletOpenGLApplication::CreateGameObject(btCollisionShape* pShape, const float &mass, const btVector3 &color, const btVector3 &initialPosition, short group, short mask, const btQuaternion &initialRotation) {
 	// create a new game object
 	GameObject* pObject = new GameObject(pShape, mass, color, initialPosition, initialRotation);
 
@@ -489,7 +489,7 @@ GameObject* BulletOpenGLApplication::CreateGameObject(btCollisionShape* pShape, 
 	// check if the world object is valid
 	if (m_pWorld) {
 		// add the object's rigid body to the world
-		m_pWorld->addRigidBody(pObject->GetRigidBody());
+		m_pWorld->addRigidBody(pObject->GetRigidBody(), group, mask);
 	}
 	return pObject;
 

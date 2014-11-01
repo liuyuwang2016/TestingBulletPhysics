@@ -36,6 +36,15 @@ struct RayResult {
 	btVector3 hitPoint;
 };
 
+// Collision groups for different types of objects. Each value
+// is represented by a single bit
+enum CollisionGroups {
+	COLGROUP_NONE = 0,
+	COLGROUP_STATIC = 1 << 0,
+	COLGROUP_BOX = 1 << 1,
+	COLGROUP_SPHERE = 1 << 2
+};
+
 class BulletOpenGLApplication {
 public:
 	BulletOpenGLApplication();
@@ -82,6 +91,8 @@ public:
 			const float &mass,
 			const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f),
 			const btVector3 &initialPosition = btVector3(0.0f, 0.0f, 0.0f),
+			short int group = -1,
+			short int mask = -1,
 			const btQuaternion &initialRotation = btQuaternion(0, 0, 1, 1));
 
 	void ShootBox(const btVector3 &direction);
